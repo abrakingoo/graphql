@@ -1,10 +1,9 @@
 import { graphql_query } from "./query.js";
+
 const signInEndPoint = "https://learn.zone01kisumu.ke/api/auth/signin";
 const graphQlEndpoint = "https://learn.zone01kisumu.ke/api/graphql-engine/v1/graphql";
 const form = document.getElementsByTagName("form")[0];
 const errorDiv = document.getElementById("error");
-
-let jwt = "";
 
 const LoginUser = async (username, password) => {
     const credentials = btoa(`${username}:${password}`);
@@ -21,19 +20,18 @@ const LoginUser = async (username, password) => {
         const json = await res.json();
 
         if (!res.ok) {
-            console.log(json);
             errorDiv.textContent = json.error || "Login failed.";
-            return;
+            return { status: false, error: json.error };
         }
 
-        jwt = json; 
         errorDiv.style.display = "none";
-        // console.log("Login successful:", jwt);
-        FetchUserData(jwt);
+        const data = await FetchUserData(json);
+        return { status: true, data };
 
     } catch (err) {
         console.error("Network or parsing error:", err);
         errorDiv.textContent = "An unexpected error occurred.";
+        return { status: false, error: "Unexpected error" };
     }
 };
 
@@ -44,22 +42,32 @@ const FetchUserData = async (jwt) => {
             "Authorization": `Bearer ${jwt}`,
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({"query" : graphql_query})
+        body: JSON.stringify({ query: graphql_query })
     });
 
     const resData = await res.json();
+    console.log("Rsponse Data >>", resData)
 
     if (!res.ok) {
         errorDiv.textContent = resData.error || "Failed to fetch user data.";
-        return;
+        return null;
     }
 
-    console.log("User Data: ", resData);
+    return resData;
 };
 
-form.addEventListener("submit", (e) => {
+form?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const userName = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    LoginUser(userName, password);
+
+    const result = await LoginUser(userName, password);
+    console.log("RESULTS: ", result)
+    if (result.status) {
+        localStorage.setItem("user", JSON.stringify(result.data));
+        window.location.href = "./pages/dashboard.html";
+    } else {
+        console.log("Login failed:", result.error);
+        errorDiv.textContent = result.error || "Login failed.";
+    }
 });
