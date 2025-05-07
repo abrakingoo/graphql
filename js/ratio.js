@@ -3,7 +3,7 @@ export default function createPieChartSVG(totalUp, totalDown) {
     const upRatio = totalUp / total;
     const downRatio = totalDown / total;
 
-    const upMB = (totalUp / 1_000_000).toFixed(2);
+    const upMB = Math.floor(totalUp / 10000) / 100;
     const downMB = (totalDown / 1_000_000).toFixed(2);
 
     // Convert to angles
@@ -33,8 +33,8 @@ export default function createPieChartSVG(totalUp, totalDown) {
     " fill="#4caf50" />
 
     <!-- Legend -->
-    <text x="10" y="210" font-size="12" fill="#4caf50">Up: ${upMB} MB</text>
-    <text x="110" y="210" font-size="12" fill="#f44336">Down: ${downMB} MB</text>
+    <text x="10" y="210" font-size="12" fill="#4caf50">Done: ${upMB} MB</text>
+    <text x="100" y="210" font-size="12" fill="#f44336">Received: ${downMB} MB</text>
   </svg>
   `;
 
