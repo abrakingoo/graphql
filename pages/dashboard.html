@@ -15,11 +15,32 @@
     </header>
 
     <div class="dashboard-container">
-        <h1>Dashboard</h1>
-        <p><strong>User ID:</strong> <span id="user-id"></span></p>
-        <p><strong>Attributes:</strong></p>
-        <pre id="user-attrs"></pre>
+        <div id="top">
+            <div id="user-info">
+                <h1><span id="campus"></span> Campus</h1>
+                <p><strong>User ID:</strong> <span id="user-id"></span></p>
+                <p><strong>Current Level:</strong> <span id="level"></span></p>
+                <p><strong>Name:</strong> <span id="name"></span></p>
+                <p><strong>Email:</strong> <span id="email"></span></p>
+            </div>
+            <div id="audit-ratio-container">
+                <div id="left">
+                    <h2>Audit Ratio</h2>
+                    <p><strong>Current:</strong> <span id="ratio"></span></p>
+                </div>
+                <div id="right">
+                    <div id="audit-ratio"></div>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-flex">
+            <div class="chart-container">
+                <h2>Skill Levels</h2>
+                <svg id="skills-svg"></svg>
+            </div>
+        </div>
     </div>
+</body>
 </body>
 
 </html>
