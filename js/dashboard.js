@@ -15,6 +15,7 @@ if (!user) {
     document.getElementById("name").textContent = `${user?.firstName} ${user?.lastName}`;
     document.getElementById("email").textContent = user?.email;
     document.getElementById("campus").textContent = user?.campus;
+    document.getElementById("total-xp").textContent = user?.totalXp.aggregate.sum.amount;
     document.getElementById("ratio").textContent = user?.auditRatio.toFixed(1);
     document.getElementById("level").textContent = user?.events[0].level;
 
@@ -93,5 +94,73 @@ if (!user) {
         circle.setAttribute("r", 4);
         circle.setAttribute("fill", "blue");
         svg.appendChild(circle);
+    });
+
+    // line graph
+
+    const xp = user?.xp; // Replace this with your actual data array from above
+
+    // STEP 1: Sort and accumulate
+    const sorted = xp
+        .map(d => ({ ...d, date: new Date(d.createdAt) }))
+        .sort((a, b) => a.date - b.date);
+
+    let totalXP = 0;
+    const points = sorted.map(entry => {
+        totalXP += entry.amount;
+        return { date: entry.date, xp: totalXP };
+    });
+
+    // STEP 2: Determine graph dimensions
+    const gsvg = document.getElementById('xpGraph');
+    const width = svg.clientWidth;
+    const height = svg.clientHeight;
+    const gpadding = 50;
+
+    const dates = points.map(p => p.date);
+    const xMin = dates[0].getTime();
+    const xMax = dates[dates.length - 1].getTime();
+    const yMax = Math.max(...points.map(p => p.xp));
+
+    // STEP 3: Scale functions
+    const xScale = time => padding + (time - xMin) / (xMax - xMin) * (width - 2 * padding);
+    const yScale = xp => height - padding - (xp / yMax) * (height - 2 * padding);
+
+    // STEP 4: Build path
+    const pathData = points.map((p, i) => {
+        const x = xScale(p.date.getTime());
+        const y = yScale(p.xp);
+        return `${i === 0 ? 'M' : 'L'} ${x},${y}`;
+    }).join(' ');
+
+    // STEP 5: Draw SVG elements
+    gsvg.innerHTML = `
+      <line class="axis" x1="${gpadding}" y1="${height - gpadding}" x2="${width - gpadding}" y2="${height - gpadding}" />
+      <line class="axis" x1="${gpadding}" y1="${gpadding}" x2="${gpadding}" y2="${height - gpadding}" />
+      <path d="${pathData}" class="line" />
+      ${points.map(p => {
+        const x = xScale(p.date.getTime());
+        const y = yScale(p.xp);
+        return `<circle class="point" cx="${x}" cy="${y}" r="2" />`;
+    }).join('')}
+    `;
+
+    // projects
+    const container = document.getElementById('projects-container');
+
+    user?.completed_projects.forEach(({ group }, index) => {
+        const div = document.createElement('div');
+        div.className = 'project';
+
+        const name = group.path.split('/').pop();
+
+        div.innerHTML = `
+        <div class="project-name">${name}</div>
+        <div class="hover-link">
+          <a href="${group.path}" target="_blank">${group.path}</a>
+        </div>
+      `;
+
+        container.appendChild(div);
     });
 }
