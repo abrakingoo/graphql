@@ -26,7 +26,7 @@ if (!user) {
     });
 
     const svg = document.getElementById("skills-svg");
-    const svgWidth = 600;
+    const svgWidth = 490;
     const svgHeight = 500;
     const maxValue = 100;
     const padding = 100;
